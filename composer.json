@@ -8,5 +8,10 @@
       "name": "George Popoff",
       "email": "ambulance@etersoft.ru"
     }
-  ]
+  ],
+  "version": "0.1",
+
+  "require": {
+    "fguillot/json-rpc": "@stable"
+  }
 }
