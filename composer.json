@@ -13,5 +13,12 @@
 
   "require": {
     "fguillot/json-rpc": "@stable"
+  },
+
+  "autoload": {
+    "psr-4": {
+      "Etersoft\\Typos\\": "src/",
+      "My\\": "example/"
+    }
   }
 }

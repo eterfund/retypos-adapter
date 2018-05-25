@@ -8,7 +8,7 @@
 namespace Etersoft\Typos;
 
 // Enable autoloading
-require __DIR__ . '../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 use JsonRPC\Server;
 
