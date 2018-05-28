@@ -62,6 +62,40 @@ abstract class TyposClientInterface
      * @param TyposArticle $article Article to fix the typo
      */
     private function replaceTypoInArticle(string $typo, string $corrected, string $context, TyposArticle $article) {
+        $article->text = "<p>Text article. <span>Contain</span> some tags and article<b>typo</b>. What to correct.</p>";
 
+        // Strip all tags from text
+        $text = strip_tags($article->text);
+
+        // Find all typos in text, capture an offset of each typo
+        $typos = [];
+        preg_match("#{$typo}#", $text, $typos, PREG_OFFSET_CAPTURE);
+
+        // Find a context in text, capture it offset
+        $contextMatch = [];
+        preg_match_all("#{$context}#", $text, $contextMatch, PREG_OFFSET_CAPTURE);
+        $contextOffset = $contextMatch[0][1];
+
+        // Find a concrete typo that we want to fix
+        $indexOfTypo = null;
+        foreach ($typos as $index => $typo) {
+            $typoOffset = $typo[1];
+            if ($typoOffset >= $contextOffset) {
+                $indexOfTypo = $index;
+                break;
+            }
+        }
+
+        // Fix a match with index = $indexOfTypo
+        $index = 0;
+        preg_replace_callback("#{$typo}#", function($match) use(&$index, $indexOfTypo, $corrected) {
+            if ($index == $indexOfTypo) {
+                return $corrected;
+            }
+
+            $index++;
+            return $match[0];
+        }, $article->text);
     }
+
 }
