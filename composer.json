@@ -20,5 +20,8 @@
       "Etersoft\\Typos\\": "src/",
       "My\\": "example/"
     }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^7"
   }
 }
