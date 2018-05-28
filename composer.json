@@ -23,5 +23,9 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^7"
+  },
+
+  "scripts": {
+    "run-all-tests": "./vendor/bin/phpunit --bootstrap vendor/autoload.php tests/"
   }
 }

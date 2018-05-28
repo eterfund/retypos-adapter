@@ -61,25 +61,26 @@ abstract class TyposClientInterface
      * @param string $context       Context where the typo found
      * @param TyposArticle $article Article to fix the typo
      */
-    private function replaceTypoInArticle(string $typo, string $corrected, string $context, TyposArticle $article) {
-        $article->text = "<p>Text article. <span>Contain</span> some tags and article<b>typo</b>. What to correct.</p>";
-
+    public function replaceTypoInArticle(string $typo, string $corrected, string $context, TyposArticle $article) {
         // Strip all tags from text
         $text = strip_tags($article->text);
 
         // Find all typos in text, capture an offset of each typo
         $typos = [];
-        preg_match("#{$typo}#", $text, $typos, PREG_OFFSET_CAPTURE);
+        preg_match_all("#{$typo}#", $text, $typos, PREG_OFFSET_CAPTURE);
+        $typos = $typos[0];
 
         // Find a context in text, capture it offset
         $contextMatch = [];
         preg_match_all("#{$context}#", $text, $contextMatch, PREG_OFFSET_CAPTURE);
+        $contextMatch = $contextMatch[0];
+
         $contextOffset = $contextMatch[0][1];
 
         // Find a concrete typo that we want to fix
         $indexOfTypo = null;
-        foreach ($typos as $index => $typo) {
-            $typoOffset = $typo[1];
+        foreach ($typos as $index => $match) {
+            $typoOffset = $match[1];
             if ($typoOffset >= $contextOffset) {
                 $indexOfTypo = $index;
                 break;
@@ -88,14 +89,16 @@ abstract class TyposClientInterface
 
         // Fix a match with index = $indexOfTypo
         $index = 0;
-        preg_replace_callback("#{$typo}#", function($match) use(&$index, $indexOfTypo, $corrected) {
-            if ($index == $indexOfTypo) {
-                return $corrected;
-            }
+        $article->text = preg_replace_callback("#{$typo}#",
+            function($match) use(&$index, $indexOfTypo, $corrected) {
+                $index++;
+                if (($index - 1) == $indexOfTypo) {
+                    return $corrected;
+                }
 
-            $index++;
-            return $match[0];
-        }, $article->text);
+                return $match[0];
+            },
+            $article->text);
     }
 
 }
