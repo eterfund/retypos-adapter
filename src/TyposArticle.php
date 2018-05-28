@@ -25,7 +25,7 @@ class TyposArticle
      * @param $id   integer Article id
      * @param $text string Article text
      */
-    public function __construct(integer $id, string $text)
+    public function __construct($id, $text)
     {
         $this->id = $id;
         $this->text = $text;
