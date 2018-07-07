@@ -45,11 +45,15 @@ abstract class TyposClientInterface
      * @param string $link          Link where the typo exist
      */
     public function fixTypo(string $typo, string $corrected, string $context, string $link) {
-        $article = $this->getArticleFromLink($link);
 
-        $this->replaceTypoInArticle($typo, $corrected, $context, $article);
+        try {
+            $article = $this->getArticleFromLink($link);
 
-        $this->saveArticle($article);
+            $this->replaceTypoInArticle($typo, $corrected, $context, $article);
+            $this->saveArticle($article);
+        } catch(\Exception $e) {
+            return ["status" => "error", "message" => $e->getMessage()];
+        }
 
         return ["status" => "success"];
     }
