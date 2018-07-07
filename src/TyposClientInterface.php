@@ -50,6 +50,8 @@ abstract class TyposClientInterface
         $this->replaceTypoInArticle($typo, $corrected, $context, $article);
 
         $this->saveArticle($article);
+
+        return ["status" => "success"];
     }
 
     /**
