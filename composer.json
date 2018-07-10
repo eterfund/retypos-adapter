@@ -1,5 +1,5 @@
 {
-  "name": "etersoft/retypos-api",
+  "name": "etersoft/retypos-adapter",
   "description": "This package is a part of Etersoft Typos system - typo fixing system.",
   "minimum-stability": "stable",
   "license": "proprietary",
