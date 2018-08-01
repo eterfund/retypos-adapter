@@ -79,8 +79,15 @@ abstract class TyposClientInterface
         // Find a context in text, capture it offset
         $contextMatch = [];
         preg_match_all("#{$context}#", $text, $contextMatch, PREG_OFFSET_CAPTURE);
+        
+        error_log("Context match = " . print_r($contextMatch, true));
+
         $contextMatch = $contextMatch[0];
 
+        if (!isset($contextMatch[0])) {
+            throw new \Exception("Failed to find the context in article");
+        }
+        
         $contextOffset = $contextMatch[0][1];
 
         // Find a concrete typo that we want to fix
