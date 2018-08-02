@@ -67,9 +67,12 @@ abstract class TyposClientInterface
      * @param string $context       Context where the typo found
      * @param TyposArticle $article Article to fix the typo
      */
-    public function replaceTypoInArticle(string $typo, string $corrected, string $context, TyposArticle $article) {
+    public function replaceTypoInArticle(string $typo, string $corrected, string $context, TyposArticle $article) {        
         // Strip all tags from text
         $text = strip_tags($article->text);
+
+        $context = preg_quote($context);
+        $typo = preg_quote($typo);
 
         // Find all typos in text, capture an offset of each typo
         $typos = [];
@@ -80,14 +83,12 @@ abstract class TyposClientInterface
         $contextMatch = [];
         preg_match_all("#{$context}#", $text, $contextMatch, PREG_OFFSET_CAPTURE);
         
-        error_log("Context match = " . print_r($contextMatch, true));
-
         $contextMatch = $contextMatch[0];
 
         if (!isset($contextMatch[0])) {
             throw new \Exception("Failed to find the context in article");
         }
-        
+
         $contextOffset = $contextMatch[0][1];
 
         // Find a concrete typo that we want to fix
