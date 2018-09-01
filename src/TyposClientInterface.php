@@ -82,6 +82,10 @@ abstract class TyposClientInterface
         // Strip all tags from text
         $text = strip_tags($article->text);
 
+        // BUG# 13121 
+        $typo = str_replace("\xc2\xa0", " ", $typo);
+        $corrected = str_replace("\xc2\xa0", " ", $corrected);
+
         // Find all typos in text, capture an offset of each typo
         $typos = [];
         preg_match_all("#{$typo}#", $text, $typos, PREG_OFFSET_CAPTURE);
