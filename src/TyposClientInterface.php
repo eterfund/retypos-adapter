@@ -36,6 +36,26 @@ abstract class TyposClientInterface
     protected abstract function saveArticle(TyposArticle $article);
 
     /**
+     * Should return an article id from provided article url
+     *
+     * @param string $link Article URL
+     * @return integer Article ID
+     *
+     * @throws \InvalidArgumentException If id cannot be extracted from link
+     */
+    protected abstract function getArticleIdFromLink(string $link);
+
+    /**
+     * Should return an edit link for an article with a given id
+     *
+     * @param int $id Article ID
+     * @return string Article edit URL
+     *
+     * @throws \Exception If an article with a given id has not been found
+     */
+    protected abstract function getArticleEditLink(int $id);
+
+    /**
      * Fixes a typo in an article from a $link url. Uses a context while
      * fixing to determine a typo position.
      *
@@ -47,22 +67,60 @@ abstract class TyposClientInterface
      * @return array Array contains error code and optional message
      */
     public function fixTypo(string $typo, string $corrected, string $context, string $link) {
-        $response = [
-            "errorCode" => 200,
-            "message" => "success",
-        ];
-
         try {
             $article = $this->getArticleFromLink($link);
             $this->replaceTypoInArticle($typo, $corrected, $context, $article);
             $this->saveArticle($article);
         } catch (\Exception $e) {
-            $response["errorCode"] = $e->getCode();
-            $response["message"] = $e->getMessage();
-            return $response;
+            return $this->getErrorMessage($e->getCode(), $e->getMessage());
         }
 
-        return $response;
+        return $this->getSuccessMessage("success");
+    }
+
+    /**
+     * Constructs a success message
+     *
+     * @param mixed $message Some data to send to the requesting server
+     * @return array Success response
+     */
+    private function getSuccessMessage(mixed $message) {
+        return [
+          "errorCode" => 200,
+          "message" => $message
+        ];
+    }
+
+    /**
+     * Constructs a error message
+     *
+     * @param int $errorCode
+     * @param string $message Error description
+     * @return array Error response
+     */
+    private function getErrorMessage(int $errorCode, string $message) {
+        return [
+            "errorCode" => $errorCode,
+            "message" => $message
+        ];
+    }
+
+    /**
+     * Returns an edit link for a given article link
+     *
+     * @param string $link Article link
+     * @return array Response array. If errorCode == 200 then message contains an edit link
+     */
+    public function getEditLink(string $link) {
+        try {
+            // May throw InvalidArgumentException
+            $id = $this->getArticleIdFromLink($link);
+            // May throw Exception (if article has not been found)
+            return $this->getSuccessMessage($this->getArticleEditLink($id));
+        } catch (\Exception $e) {
+            error_log(`[TyposClientInterface] [getEditLink] Failed to get edit link: {$e->getMessage()}`);
+            return $this->getErrorMessage(500, "Failed to get an edit link");
+        }
     }
 
     /**
