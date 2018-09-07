@@ -84,7 +84,7 @@ abstract class TyposClientInterface
      * @param mixed $message Some data to send to the requesting server
      * @return array Success response
      */
-    private function getSuccessMessage(mixed $message) {
+    private function getSuccessMessage($message) {
         return [
           "errorCode" => 200,
           "message" => $message
@@ -115,11 +115,12 @@ abstract class TyposClientInterface
         try {
             // May throw InvalidArgumentException
             $id = $this->getArticleIdFromLink($link);
+
             // May throw Exception (if article has not been found)
             return $this->getSuccessMessage($this->getArticleEditLink($id));
         } catch (\Exception $e) {
             error_log(`[TyposClientInterface] [getEditLink] Failed to get edit link: {$e->getMessage()}`);
-            return $this->getErrorMessage(500, "Failed to get an edit link");
+            return $this->getErrorMessage(500, "Failed to get an edit link: {$e->getMessage()}");
         }
     }
 
