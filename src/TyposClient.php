@@ -39,7 +39,7 @@ class TyposClient
         $this->server = new Server();
         $procedureHandler = $this->server->getProcedureHandler();
 
-        $procedureHandler->withClassAndMethod("fixTypo", $this->interface);
+        $procedureHandler->withObject($this->interface);
     }
 
     /**
