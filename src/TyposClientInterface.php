@@ -154,7 +154,7 @@ abstract class TyposClientInterface
             // Check for already fixed typo
             preg_match_all("#{$corrected}#", $text, $typos, PREG_OFFSET_CAPTURE);
 
-            if (isset($typos[0])) {
+            if (isset($typos[0][1])) {
                 throw new \Exception("Already fixed", 208);
             }
 
