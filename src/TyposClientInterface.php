@@ -133,13 +133,51 @@ abstract class TyposClientInterface
      * @param string $context Context where the typo found
      * @param TyposArticle $article Article to fix the typo
      *
-     * @throws \Exception
-     *  404 - Typo does not exist
-     *  405 - Context has been changed
+     * @throws \Exception 404 - Typo does not exist
      */
-    public function replaceTypoInArticle(string $typo, string $corrected, string $context, TyposArticle $article) {
+    private function replaceTypoInArticle(string $typo, string $corrected, string $context, TyposArticle $article) {
+        $lastException = null;
+
+        // Trying to replace typo in text
+        try {
+            $article->text = $this->replaceTypoInText($typo, $corrected, $context, $article->text);
+            return;
+        } catch (\Exception $e) {
+            if ($e->getCode() != 404 && $e->getCode() != 405) {
+                throw $e;
+            }
+        }
+
+        // Trying to replace typo in title
+        try {
+            $article->title = $this->replaceTypoInText($typo, $corrected, $context, $article->title);
+            return;
+        } catch (\Exception $e) {
+            if ($e->getCode() != 404 && $e->getCode() != 405) {
+                throw $e;
+            }
+        }
+
+        // Trying to replace typo in subtitle
+        $article->subtitle = $this->replaceTypoInText($typo, $corrected, $context, $article->subtitle);
+    }
+
+
+    /**
+     * Finds and replaces a typo in a given text using provided context.
+     * If typo has not been found then exception will be thrown
+     *
+     * @param string $typo
+     * @param string $corrected
+     * @param string $context
+     * @param $text
+     *
+     * @return string       Text with typo replaced by corrected
+     * @throws \Exception   If something goes wrong
+     */
+    private function replaceTypoInText(string $typo, string $corrected, string $context, $text) {
         // Strip all tags from text
-        $text = strip_tags($article->text);
+        $text = strip_tags($text);
 
         // BUG# 13121 
         $typo = str_replace("\xc2\xa0", " ", $typo);
@@ -187,7 +225,7 @@ abstract class TyposClientInterface
 
         // Fix a match with index = $indexOfTypo
         $index = 0;
-        $article->text = preg_replace_callback("#{$typo}#",
+        return preg_replace_callback("#{$typo}#",
             function($match) use(&$index, $indexOfTypo, $corrected) {
                 $index++;
                 if (($index - 1) == $indexOfTypo) {
@@ -196,7 +234,7 @@ abstract class TyposClientInterface
 
                 return $match[0];
             },
-            $article->text);
+            $text);
     }
 
 }
