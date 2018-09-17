@@ -20,14 +20,21 @@ class TyposArticle
     public $id;
     public $text;
 
+    public $title;
+    public $subtitle;
+
     /**
      * TyposArticle constructor.
      * @param $id   integer Article id
      * @param $text string Article text
+     * @param $title string Article title
+     * @param $subtitle string Article subtitle
      */
-    public function __construct($id, $text)
+    public function __construct($id, $text, $title, $subtitle)
     {
         $this->id = $id;
         $this->text = $text;
+        $this->title = $title;
+        $this->subtitle = $subtitle;
     }
 }
