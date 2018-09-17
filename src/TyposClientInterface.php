@@ -173,10 +173,12 @@ abstract class TyposClientInterface
      * @param $text
      *
      * @return string       Text with typo replaced by corrected
-     * @throws \Exception   If something goes wrong
+     * @throws \Exception If something goes wrong
      */
     private function replaceTypoInText(string $typo, string $corrected, string $context, $text) {
         // Strip all tags from text
+        // Also copy input string
+        $originalText = $text;
         $text = strip_tags($text);
 
         // BUG# 13121 
@@ -185,14 +187,13 @@ abstract class TyposClientInterface
 
         // Find all typos in text, capture an offset of each typo
         $typos = [];
-        preg_match_all("#{$typo}#", $text, $typos, PREG_OFFSET_CAPTURE);
-        $typos = $typos[0];
+        preg_match("#{$typo}#", $text, $typos, PREG_OFFSET_CAPTURE);
 
-        if (!isset($typos[0])) {
+        if (count($typos) == 0) {
             // Check for already fixed typo
-            preg_match_all("#{$corrected}#", $text, $typos, PREG_OFFSET_CAPTURE);
+            preg_match("#{$corrected}#", $text, $typos, PREG_OFFSET_CAPTURE);
 
-            if (isset($typos[0][1])) {
+            if (count($typos) != 0) {
                 throw new \Exception("Already fixed", 208);
             }
 
@@ -201,17 +202,17 @@ abstract class TyposClientInterface
 
         // Find a context in text, capture it offset
         $contextMatch = [];
-        preg_match_all("#{$context}#", $text, $contextMatch, PREG_OFFSET_CAPTURE);
+        preg_match("#{$context}#", $text, $contextMatch, PREG_OFFSET_CAPTURE);
 
         // If a context was changed then report an error,
         // cannot locate typo in a new context, must be
         // fixed manually
-        if (!isset($contextMatch[0])) {
+        if (count($contextMatch) == 0) {
             throw new \Exception("Context not found", 405);
         }
 
         $contextMatch = $contextMatch[0];
-        $contextOffset = $contextMatch[0][1];
+        $contextOffset = $contextMatch[1];
 
         // Find a concrete typo that we want to fix
         $indexOfTypo = null;
@@ -234,7 +235,7 @@ abstract class TyposClientInterface
 
                 return $match[0];
             },
-            $text);
+            $originalText);
     }
 
 }

@@ -21,7 +21,7 @@ class MyClientInterface extends TyposClientInterface {
      */
     protected function getArticleFromLink(string $link)
     {
-        return new TyposArticle(0, "");
+        return new TyposArticle(0, "", "", "");
     }
 
     /**
