@@ -138,6 +138,10 @@ abstract class TyposClientInterface
     private function replaceTypoInArticle(string $typo, string $corrected, string $context, TyposArticle $article) {
         $lastException = null;
 
+        // Replace -- to - in context string
+        // BUG# 12799
+        $context = str_replace("\xe2\x80\x94", "-", $context);
+
         // Trying to replace typo in text
         try {
             error_log("Trying to find a typo in article text...");
