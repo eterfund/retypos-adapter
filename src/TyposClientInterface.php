@@ -140,9 +140,11 @@ abstract class TyposClientInterface
 
         // Trying to replace typo in text
         try {
+            error_log("Trying to find a typo in article text...");
             $article->text = $this->replaceTypoInText($typo, $corrected, $context, $article->text);
             return;
         } catch (\Exception $e) {
+            error_log($e->getMessage());
             if ($e->getCode() != 404 && $e->getCode() != 405) {
                 throw $e;
             }
@@ -150,14 +152,17 @@ abstract class TyposClientInterface
 
         // Trying to replace typo in title
         try {
+            error_log("Trying to find a typo in article title...");
             $article->title = $this->replaceTypoInText($typo, $corrected, $context, $article->title);
             return;
         } catch (\Exception $e) {
+            error_log($e->getMessage());
             if ($e->getCode() != 404 && $e->getCode() != 405) {
                 throw $e;
             }
         }
 
+        error_log("Trying to find a typo in article subtitle...");
         // Trying to replace typo in subtitle
         $article->subtitle = $this->replaceTypoInText($typo, $corrected, $context, $article->subtitle);
     }
