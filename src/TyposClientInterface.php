@@ -138,6 +138,8 @@ abstract class TyposClientInterface
     private function replaceTypoInArticle(string $typo, string $corrected, string $context, TyposArticle $article) {
         $lastException = null;
 
+        $isContextNotFound = false;
+
         // Replace -- to - in context string
         // BUG# 12799
         $context = str_replace("\xe2\x80\x94", "-", $context);
@@ -149,8 +151,16 @@ abstract class TyposClientInterface
             return;
         } catch (\Exception $e) {
             error_log($e->getMessage());
+
             if ($e->getCode() != 404 && $e->getCode() != 405) {
                 throw $e;
+            }
+
+            // If context was not found in text then remember this
+            // and after all search if we not found a typo, then throw
+            // 405 exception and not 404
+            if ($e->getCode() == 405) {
+                $isContextNotFound = true;
             }
         }
 
@@ -161,14 +171,27 @@ abstract class TyposClientInterface
             return;
         } catch (\Exception $e) {
             error_log($e->getMessage());
+
             if ($e->getCode() != 404 && $e->getCode() != 405) {
                 throw $e;
             }
+
+            if ($e->getCode() == 405) {
+                $isContextNotFound = true;
+            }
         }
 
-        error_log("Trying to find a typo in article subtitle...");
         // Trying to replace typo in subtitle
-        $article->subtitle = $this->replaceTypoInText($typo, $corrected, $context, $article->subtitle);
+        try {
+            error_log("Trying to find a typo in article subtitle...");
+            $article->subtitle = $this->replaceTypoInText($typo, $corrected, $context, $article->subtitle);
+        } catch (\Exception $e) {
+            if ($e->getCode() == 404 && $isContextNotFound) {
+                throw new \Exception("Context not found", 405);
+            }
+
+            throw $e;
+        }
     }
 
 
