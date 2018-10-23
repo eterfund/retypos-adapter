@@ -144,6 +144,9 @@ abstract class TyposClientInterface
         // BUG# 12799
         $context = str_replace("\xe2\x80\x94", "-", $context);
 
+        // BUG# 12799 Need to change quotes and preg quote
+        $context = preg_quote(preg_replace('#«([^«]*)»#', '"$1"', $context));
+
         // Trying to replace typo in text
         try {
             error_log("Trying to find a typo in article text...");
