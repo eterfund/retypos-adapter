@@ -219,6 +219,7 @@ abstract class TyposClientInterface
         // BUG# 13121 
         $typo = str_replace("\xc2\xa0", " ", $typo);
         $corrected = str_replace("\xc2\xa0", " ", $corrected);
+        $context = preg_replace("\xc2\xa0", "", $context);
 
         // Find all typos in text, capture an offset of each typo
         $typos = [];
